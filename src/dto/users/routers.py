@@ -3,7 +3,7 @@ from typing import Sequence, Optional, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
-from src.auth.utils import get_current_active_user
+from src.auth.utils import get_current_active_user, get_current_active_admin
 from src.dao.models import Password, User
 from src.database.database import CommonAsyncSession
 from src.dto.passwords.utils import create_password_instance
@@ -40,6 +40,7 @@ async def read_users_me(
 
 @router.get(
     "",
+    dependencies=[Depends(get_current_active_user)],
     response_model=list[UserOutSchema],
     responses={
         404: {
@@ -59,7 +60,11 @@ async def get_all_users(
     return users_orm
 
 
-@router.get("/{user_id}", response_model=UserOutSchema)
+@router.get(
+    "/{user_id}",
+    dependencies=[Depends(get_current_active_user)],
+    response_model=UserOutSchema,
+)
 async def get_user_by_id(
     session: CommonAsyncSession,
     user_id: int,
@@ -74,6 +79,7 @@ async def get_user_by_id(
 
 @router.post(
     "",
+    dependencies=[Depends(get_current_active_admin)],
     response_model=UserOutSchema,
     status_code=201,
     responses={
@@ -110,7 +116,11 @@ async def add_new_user(
     return new_user_orm
 
 
-@router.patch("/{user_id}", response_model=UserOutSchema)
+@router.patch(
+    "/{user_id}",
+    dependencies=[Depends(get_current_active_admin)],
+    response_model=UserOutSchema,
+)
 async def update_partial_user(
     session: CommonAsyncSession,
     user_id: int,
@@ -126,7 +136,11 @@ async def update_partial_user(
     return user
 
 
-@router.delete("/{user_id}", response_model=DeleteConfirmSchema)
+@router.delete(
+    "/{user_id}",
+    dependencies=[Depends(get_current_active_admin)],
+    response_model=DeleteConfirmSchema,
+)
 async def delete_user(
     session: CommonAsyncSession,
     user_id: int,

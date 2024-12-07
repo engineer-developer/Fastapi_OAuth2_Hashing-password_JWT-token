@@ -28,7 +28,7 @@ class DatabaseConfig(BaseModel):
 class AuthData(BaseModel):
     secret_key: str
     algorithm: str
-    access_token_expire_minutes: int = 10
+    access_token_expire_minutes: int = 30
 
 
 class Settings(BaseSettings):
