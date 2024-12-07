@@ -1,69 +1,117 @@
-import hashlib
-import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Annotated, Optional
 
+import jwt
 from fastapi import Depends, HTTPException, status
+from jwt.exceptions import InvalidTokenError
+from passlib.exc import UnknownHashError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.schemas import oauth2_scheme
+from src.auth.schemas import oauth2_scheme, pwd_context
+from src.config.config import settings
 from src.dao.models import User
 from src.database.database import CommonAsyncScopedSession
-from src.dto.users.utils import fetch_user_by_email
+from src.dto.tokens.schemas import TokenData
+from src.dto.users.utils import fetch_user_by_email, fetch_user_by_username
 
 
-async def make_hashed_password(
-    password: str,
-    salt: str | None = None,
-) -> tuple[str, str]:
+async def get_password_hash(password: str):
     """Make hashed password from given password"""
-
-    if not salt:
-        salt = uuid.uuid4().hex
-    mix = (password + salt).encode()
-    hashed_password = hashlib.sha512(mix).hexdigest()
-    return hashed_password, salt
+    hashed_password = pwd_context.hash(password)
+    return hashed_password
 
 
-async def is_correct_password(
-    hashed_pw: str,
-    salt: str,
-    password: str,
-) -> bool:
+async def verify_password(plain_password: str, hashed_password: str):
     """Check equality given password with hashed password"""
+    try:
+        is_correct = pwd_context.verify(plain_password, hashed_password)
+    except UnknownHashError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=exc.message,
+        )
+    return is_correct
 
-    result = await make_hashed_password(password, salt)
-    return hashed_pw == result[0]
+
+async def authenticate_user(
+    session: AsyncSession,
+    email: str,
+    password: str,
+):
+
+    user = await get_user_from_db(session, email=email)
+    if not user:
+        return False
+    if not await verify_password(password, user.password.hashed_password):
+        return False
+    return user
 
 
-async def create_token() -> str:
+async def create_access_token(
+    data: dict,
+    expires_delta: timedelta | None = None,
+):
     """Create token for tracking user registration"""
 
-    some_token = ""
-    return some_token
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(
+        payload=to_encode,
+        key=settings.auth.secret_key,
+        algorithm=settings.auth.algorithm,
+    )
+    return encoded_jwt
+
+
+async def get_user_from_db(
+    session: AsyncSession,
+    username: Optional[str] = None,
+    email: Optional[str] = None,
+) -> Optional[User]:
+    if username:
+        return await fetch_user_by_username(session, username)
+    if email:
+        return await fetch_user_by_email(session, email)
 
 
 async def get_current_user(
     session: CommonAsyncScopedSession,
     token: Annotated[str, Depends(oauth2_scheme)],
-) -> Optional[User]:
-    """Get current login user"""
-
-    user = await fetch_user_by_email(session, token)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(
+            jwt=token,
+            key=settings.auth.secret_key,
+            algorithms=[settings.auth.algorithm],
         )
-    return user
+        user_email: str = payload.get("sub")
+        if user_email is None:
+            raise credentials_exception
+        token_data = TokenData(user_email=user_email)
+    except InvalidTokenError:
+        raise credentials_exception
+
+    current_user = await get_user_from_db(session, email=token_data.user_email)
+    if current_user is None:
+        raise credentials_exception
+
+    return current_user
 
 
 async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_active_user: Annotated[User, Depends(get_current_user)],
 ) -> Optional[User]:
     """Get current active login user"""
 
-    if not current_user.is_active:
+    if not current_active_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+    return current_active_user

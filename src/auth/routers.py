@@ -1,45 +1,42 @@
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
+from src.auth.utils import authenticate_user, create_access_token
+from src.config.config import settings
 from src.database.database import CommonAsyncScopedSession
-from src.auth.utils import is_correct_password
-from src.dto.users.utils import fetch_user_by_email
+from src.dto.tokens.schemas import Token
 
 router = APIRouter(tags=["Auth"])
 
 
-@router.post("/token")
+@router.post("/token", response_model=Token)
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: CommonAsyncScopedSession,
-) -> dict[str, str]:
+):
     """
-    Get credentials from form-data
+    Get credentials from form-data and create access_token.
     In this case uses "Content-type": "application/x-www-form-urlencoded"
     """
-
-    given_email = form_data.username
-    given_password = form_data.password
-
-    user = await fetch_user_by_email(session, given_email)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect username or password",
-        )
-
-    password_is_valid = await is_correct_password(
-        hashed_pw=user.password.hashed_password,
-        salt=user.password.salt,
-        password=given_password,
+    incorrect_credentials_exception = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Incorrect username or password",
     )
 
-    if not password_is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect username or password",
-        )
+    email = form_data.username
+    password = form_data.password
 
-    return {"access_token": user.email, "token_type": "bearer"}
+    user = await authenticate_user(session, email, password)
+    if not user:
+        raise incorrect_credentials_exception
+
+    access_token_expires = timedelta(
+        minutes=settings.auth.access_token_expire_minutes,
+    )
+    access_token = await create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
