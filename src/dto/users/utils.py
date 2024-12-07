@@ -30,6 +30,18 @@ async def fetch_user_by_id(
     return user
 
 
+async def fetch_user_by_username(
+    session: AsyncSession,
+    username: str,
+) -> Optional[User]:
+    """Fetch user by username from database"""
+
+    stmt = select(User).where(User.username == username)
+    result = await session.execute(stmt)
+    user = result.scalar_one_or_none()
+    return user
+
+
 async def fetch_user_by_email(
     session: AsyncSession,
     email: str,
