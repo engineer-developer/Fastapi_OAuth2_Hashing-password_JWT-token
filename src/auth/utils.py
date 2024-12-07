@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.schemas import oauth2_scheme, pwd_context
 from src.config.config import settings
-from src.dao.models import User
+from src.dao.models import User, Role
 from src.database.database import CommonAsyncScopedSession
 from src.dto.tokens.schemas import TokenData
 from src.dto.users.utils import fetch_user_by_email, fetch_user_by_username
@@ -38,7 +38,6 @@ async def authenticate_user(
     email: str,
     password: str,
 ):
-
     user = await get_user_from_db(session, email=email)
     if not user:
         return False
@@ -115,3 +114,13 @@ async def get_current_active_user(
     if not current_active_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_active_user
+
+
+async def get_current_active_admin(
+    current_active_admin: Annotated[User, Depends(get_current_active_user)],
+) -> Optional[User]:
+    """Get current active login admin"""
+
+    if Role.admin not in current_active_admin.roles:
+        raise HTTPException(status_code=400, detail="User have not admin rights")
+    return current_active_admin
