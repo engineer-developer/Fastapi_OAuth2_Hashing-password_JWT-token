@@ -1,4 +1,4 @@
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -29,6 +29,13 @@ user_not_found_exception = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Users not found",
 )
+
+
+@router.get("/me", response_model=UserOutSchema)
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return current_user
 
 
 @router.get(
@@ -84,7 +91,6 @@ async def add_new_user(
     try:
         async with session.begin():
             new_password_orm: Password = await create_password_instance(
-                session,
                 user.password,
             )
             session.add(new_password_orm)
