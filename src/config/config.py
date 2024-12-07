@@ -25,6 +25,11 @@ class DatabaseConfig(BaseModel):
         )
 
 
+class AuthData(BaseModel):
+    secret_key: str
+    algorithm: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=env_file,
@@ -32,6 +37,7 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     db: DatabaseConfig
+    auth: AuthData()
 
 
 @lru_cache
