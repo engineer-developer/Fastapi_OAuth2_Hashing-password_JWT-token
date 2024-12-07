@@ -19,7 +19,6 @@ from src.dao.models import DatabaseModel  # noqa:E402
 # access to the values within the .ini file in use.
 config = context.config
 
-print("Current DB URL: ", settings.db.url)
 config.set_main_option("sqlalchemy.url", settings.db.url)
 
 # Interpret the config file for Python logging.
