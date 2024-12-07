@@ -28,6 +28,7 @@ class DatabaseConfig(BaseModel):
 class AuthData(BaseModel):
     secret_key: str
     algorithm: str
+    access_token_expire_minutes: int = 10
 
 
 class Settings(BaseSettings):
@@ -37,7 +38,7 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     db: DatabaseConfig
-    auth: AuthData()
+    auth: AuthData
 
 
 @lru_cache
