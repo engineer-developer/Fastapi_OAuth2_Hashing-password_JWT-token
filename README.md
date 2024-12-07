@@ -44,7 +44,7 @@
 >```
 >### Logging as admin
 >##### You can log as admin with follow credentials:
->* username = user@example.com
+>* username = admin@example.com
 >* password = 1234567890
 
 >### The tests are implemented with pytest
