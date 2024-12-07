@@ -41,6 +41,7 @@ def upgrade() -> None:
                     "teacher",
                     "moderator",
                     "admin",
+                    "super_admin",
                     name="role",
                 )
             ),
@@ -68,7 +69,7 @@ def upgrade() -> None:
     user_value = {
         "username": "Admin Bob",
         "email": "admin@example.com",
-        "roles": ["admin"],
+        "roles": ["super_admin"],
         "is_active": True,
         "password_id": 1,
     }

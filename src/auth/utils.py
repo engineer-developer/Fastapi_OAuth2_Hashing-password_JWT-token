@@ -119,8 +119,21 @@ async def get_current_active_user(
 async def get_current_active_admin(
     current_active_admin: Annotated[User, Depends(get_current_active_user)],
 ) -> Optional[User]:
-    """Get current active login admin"""
+    """Get current active login admin or super_admin"""
 
-    if Role.admin not in current_active_admin.roles:
-        raise HTTPException(status_code=400, detail="User have not admin rights")
-    return current_active_admin
+    is_contains_any_admin = any(
+        [
+            role in current_active_admin.roles
+            for role in (
+                Role.admin,
+                Role.super_admin,
+            )
+        ]
+    )
+    if is_contains_any_admin:
+        return current_active_admin
+
+    raise HTTPException(
+        status_code=400,
+        detail="User have not admin rights",
+    )

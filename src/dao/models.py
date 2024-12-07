@@ -29,6 +29,7 @@ class Role(enum.Enum):
     teacher = "teacher"
     moderator = "moderator"
     admin = "admin"
+    super_admin = "super_admin"
 
 
 class User(DatabaseModel):

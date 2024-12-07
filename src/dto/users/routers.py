@@ -8,7 +8,7 @@ from src.auth.utils import (
     get_current_active_user,
     get_current_user,
 )
-from src.dao.models import Password, User
+from src.dao.models import Password, User, Role
 from src.database.database import CommonAsyncSession
 from src.dto.passwords.utils import create_password_instance
 from src.dto.users.schemas import (
@@ -132,8 +132,15 @@ async def update_partial_user(
     """Update user partially"""
 
     user = await fetch_user_by_id(session, user_id)
+
     if not user:
         raise user_not_found_exception
+
+    if Role.super_admin in user.roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Can not update super_admin",
+        )
 
     for name, value in updated_user.model_dump(exclude_unset=True).items():
         setattr(user, name, value)
@@ -155,6 +162,13 @@ async def delete_user(
     user = await fetch_user_by_id(session, user_id)
     if not user:
         raise user_not_found_exception
+
+    if Role.super_admin in user.roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Can not delete super_admin",
+        )
+
     await session.delete(user)
     await session.commit()
     return {"deleted": "True"}

@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class RoleSchema(str, enum.Enum):
@@ -10,6 +10,7 @@ class RoleSchema(str, enum.Enum):
     teacher = "teacher"
     moderator = "moderator"
     admin = "admin"
+    super_admin = "super_admin"
 
 
 class UserBaseSchema(BaseModel):
@@ -20,6 +21,14 @@ class UserBaseSchema(BaseModel):
 
 class UserCreateSchema(UserBaseSchema):
     password: str = Field(min_length=10)
+
+    @field_validator("roles")
+    @classmethod
+    def check_field(cls, v: list):
+        if RoleSchema.super_admin in v:
+            v.remove(RoleSchema.super_admin)
+            v.append(RoleSchema.admin)
+        return v
 
 
 class UserUpdateSchema(BaseModel):
