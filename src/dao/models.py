@@ -2,8 +2,9 @@ import enum
 from typing import Optional
 
 from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ARRAY, ENUM as PgEnum
 
 from .base_model import DatabaseModel
 

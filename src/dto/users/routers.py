@@ -1,9 +1,13 @@
-from typing import Sequence, Optional, Annotated
+from typing import Annotated, Optional, Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
-from src.auth.utils import get_current_active_user, get_current_active_admin
+from src.auth.utils import (
+    get_current_active_admin,
+    get_current_active_user,
+    get_current_user,
+)
 from src.dao.models import Password, User
 from src.database.database import CommonAsyncSession
 from src.dto.passwords.utils import create_password_instance
@@ -14,15 +18,11 @@ from src.dto.users.schemas import (
     UserOutSchema,
     UserUpdateSchema,
 )
-from src.dto.users.utils import (
-    fetch_all_users,
-    fetch_user_by_id,
-)
+from src.dto.users.utils import fetch_all_users, fetch_user_by_id
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
-    # dependencies=[Depends(get_current_active_user)],
 )
 
 user_not_found_exception = HTTPException(
@@ -32,9 +32,11 @@ user_not_found_exception = HTTPException(
 
 
 @router.get("/me", response_model=UserOutSchema)
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+async def get_profile_of_logging_user(
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Get logging user"""
+
     return current_user
 
 
@@ -94,6 +96,7 @@ async def add_new_user(
     user: UserCreateSchema,
 ) -> Optional[User]:
     """Add new user to database"""
+
     try:
         async with session.begin():
             new_password_orm: Password = await create_password_instance(
@@ -126,6 +129,8 @@ async def update_partial_user(
     user_id: int,
     updated_user: UserUpdateSchema,
 ) -> Optional[User]:
+    """Update user partially"""
+
     user = await fetch_user_by_id(session, user_id)
     if not user:
         raise user_not_found_exception

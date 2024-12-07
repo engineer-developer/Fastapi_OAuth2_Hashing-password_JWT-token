@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.schemas import oauth2_scheme, pwd_context
 from src.config.config import settings
-from src.dao.models import User, Role
+from src.dao.models import Role, User
 from src.database.database import CommonAsyncScopedSession
 from src.dto.tokens.schemas import TokenData
 from src.dto.users.utils import fetch_user_by_email, fetch_user_by_username
