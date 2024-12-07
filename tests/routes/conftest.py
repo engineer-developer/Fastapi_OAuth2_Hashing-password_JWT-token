@@ -28,6 +28,6 @@ async def new_user():
     return {
         "username": "Bob",
         "email": "bob@example.com",
-        "role": "client",
+        "roles": ["user"],
         "password": "0987654321",
     }
