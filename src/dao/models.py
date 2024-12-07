@@ -52,6 +52,7 @@ class User(DatabaseModel):
     password: Mapped["Password"] = relationship(
         back_populates="user",
         single_parent=True,
+        cascade="all, delete-orphan",
         uselist=False,
         lazy="selectin",
     )
