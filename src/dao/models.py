@@ -1,10 +1,9 @@
-import contextlib
 import enum
 from typing import Optional
 
-from sqlalchemy import ForeignKey, UniqueConstraint, Enum
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, ENUM as PgEnum
 
 from .base_model import DatabaseModel
 
@@ -40,7 +39,7 @@ class User(DatabaseModel):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[Optional[str]]
     email: Mapped[str] = mapped_column(unique=True)
-    role: Mapped[list[Role]] = mapped_column(ARRAY(Enum(Role)))
+    roles: Mapped[list[Role]] = mapped_column(ARRAY(PgEnum(Role)))
 
     is_active: Mapped[bool] = mapped_column(default=True)
     password_id: Mapped[int] = mapped_column(
@@ -56,3 +55,6 @@ class User(DatabaseModel):
         uselist=False,
         lazy="selectin",
     )
+
+    def __repr__(self):
+        return f"User <{self.username}>"

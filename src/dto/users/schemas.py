@@ -3,17 +3,19 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.dao.models import Role
 
-
-class RoleSchema(str, Role):
-    pass
+class RoleSchema(str, enum.Enum):
+    user = "user"
+    super_user = "super_user"
+    teacher = "teacher"
+    moderator = "moderator"
+    admin = "admin"
 
 
 class UserBaseSchema(BaseModel):
     username: Optional[str]
     email: EmailStr
-    role: list[RoleSchema]
+    roles: list[RoleSchema]
 
 
 class UserCreateSchema(UserBaseSchema):
@@ -23,7 +25,7 @@ class UserCreateSchema(UserBaseSchema):
 class UserUpdateSchema(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
-    role: Optional[list[RoleSchema]] = None
+    roles: Optional[list[RoleSchema]] = None
     is_active: Optional[bool] = None
 
 

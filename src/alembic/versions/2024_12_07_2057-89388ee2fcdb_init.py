@@ -1,8 +1,8 @@
-"""Init revision
+"""Init
 
-Revision ID: 3319671d109f
+Revision ID: 89388ee2fcdb
 Revises: 
-Create Date: 2024-12-07 18:12:09.891313
+Create Date: 2024-12-07 20:57:09.186502
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "3319671d109f"
+revision: str = "89388ee2fcdb"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,9 +33,9 @@ def upgrade() -> None:
         sa.Column("username", sa.String(), nullable=True),
         sa.Column("email", sa.String(), nullable=False),
         sa.Column(
-            "role",
+            "roles",
             postgresql.ARRAY(
-                sa.Enum(
+                postgresql.ENUM(
                     "user",
                     "super_user",
                     "teacher",
@@ -60,18 +60,15 @@ def upgrade() -> None:
     )
 
     def insert_value_in_table(table, value: dict):
-        op.bulk_insert(
-            table,
-            [value],
-        )
+        op.bulk_insert(table, [value])
 
     password_value = {
-        "hashed_password": "bf91848c83fd4bd1928ed18083b441064e7918a4275c6aaf7f9865ef4c7bde2c67692b5a4f207abe0820fc1c91a3824938d1d265e9d3943ac89a9e9abe923327",
+        "hashed_password": "$2b$12$aToTBlTJQXc4np906GD9KO2ckSvVO5dj3x9ZxAi58MxVFa7wOaBmO",
     }
     user_value = {
-        "username": "some_user",
-        "email": "user@example.com",
-        "role": ["admin"],
+        "username": "Admin Bob",
+        "email": "admin@example.com",
+        "roles": ["admin"],
         "is_active": True,
         "password_id": 1,
     }
