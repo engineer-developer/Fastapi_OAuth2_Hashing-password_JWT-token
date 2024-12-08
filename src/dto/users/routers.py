@@ -1,6 +1,8 @@
+from pathlib import Path
 from typing import Annotated, Optional, Sequence
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.templating import Jinja2Templates
 
 from src.auth.utils import (
     get_current_active_admin,
@@ -29,6 +31,15 @@ user_not_found_exception = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Users not found",
 )
+
+
+@router.get("/login")
+async def authentication(request: Request):
+    """Authentication form"""
+
+    templates_dir = Path(__file__).parent.parent.parent / "templates"
+    templates = Jinja2Templates(directory=templates_dir)
+    return templates.TemplateResponse("auth.html", {"request": request})
 
 
 @router.get("/me", response_model=UserOutSchema)
