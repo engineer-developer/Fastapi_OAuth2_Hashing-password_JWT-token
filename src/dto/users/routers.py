@@ -1,7 +1,6 @@
 from typing import Annotated, Optional, Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import IntegrityError
 
 from src.auth.utils import (
     get_current_active_admin,
@@ -18,7 +17,8 @@ from src.dto.users.schemas import (
     UserOutSchema,
     UserUpdateSchema,
 )
-from src.dto.users.utils import fetch_all_users, fetch_user_by_id
+from src.dto.users.utils import fetch_all_users, fetch_user_by_id, fetch_user_by_email
+
 
 router = APIRouter(
     prefix="/users",
@@ -97,25 +97,21 @@ async def add_new_user(
 ) -> Optional[User]:
     """Add new user to database"""
 
-    try:
-        async with session.begin():
-            new_password_orm: Password = await create_password_instance(
-                user.password,
-            )
-            session.add(new_password_orm)
-            await session.flush()
-            new_user_orm = User(**user.model_dump(exclude={"password"}))
-            new_user_orm.password_id = new_password_orm.id
-            session.add(new_user_orm)
-    except IntegrityError as exc:
+    user_in_db = await fetch_user_by_email(session, user.email)
+    if user_in_db:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"{
-                exc.orig.args.__str__().rsplit(sep=":")[-1].strip(".',) ")
-                if exc.orig
-                else exc.__repr__()
-            }",
+            detail="User with such email already exist",
         )
+    new_password_orm: Password = await create_password_instance(
+        user.password,
+    )
+    session.add(new_password_orm)
+    await session.flush()
+    new_user_orm = User(**user.model_dump(exclude={"password"}))
+    new_user_orm.password_id = new_password_orm.id
+    session.add(new_user_orm)
+    await session.commit()
     return new_user_orm
 
 
