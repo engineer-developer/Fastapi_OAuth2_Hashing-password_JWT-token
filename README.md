@@ -1,13 +1,16 @@
-# Fastapi authentication 
+# Fastapi authentication
 
-#### Authentication type: *"OAuth2 password BEARER with JWT-token"*
+## Authentication type: <i>"OAuth2 password BEARER with JWT-token"</i>
 
-###### *username, password, jwt-token are used*
+<h4><i>
+For authentication uses form, where user input username and password. <br>
+If input data is valid, will be created jwt-token and placed it in headers.
+</i></h4>
 
 ---
 
->### Prepare virtual enviroinment
->##### The project uses poetry to install dependencies
+### Prepare virtual enviroinment
+><h4>The project uses poetry to install dependencies.</h4>
 >
 >* To install dependencies in project dir run shell-command:
 >
@@ -21,8 +24,9 @@
 >poetry install
 >```
 
->### Prepare database
->##### The postgres database is used for data storage
+### Prepare database
+
+>The postgres database is used for data storage
 >
 >* For launch postgres database in docker container run command:
 >
@@ -31,24 +35,27 @@
 >```
 
 
->### Prepare environments
+### Prepare environments
 >##### Needed environments are placed in *.env* file
 >
 >* You must create and fill in the **.env** file by analogy with the **.env.template** file
 
->### Run project
+### Run project
 >##### You can run project with shell-command:
 >
 >```
 >python src/loader.py
 >```
->### Logging as admin
+
+### Logging as super_admin
 >##### You can log as admin with follow credentials:
 >* username = admin@example.com
 >* password = 1234567890
 
->### The tests are implemented with pytest
-> ##### To be able to run tests you should have database with name "*pytest_db*".
+### Tests
+><p> The tests are implemented with pytest. <br>
+> To be able to run tests you should have database with name "*pytest_db*".</p>
+>
 >* Example SQL commands to create database:
 >```
 >CREATE DATABASE "pytest_db";
