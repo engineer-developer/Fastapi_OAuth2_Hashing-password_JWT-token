@@ -8,7 +8,7 @@
 | Access-token stored in |      HEADER      | 
 
 <h4><i>
-For authentication uses form, where user input username and password. <br>
+For authentication uses OAuth2, where user input username and password. <br>
 If input data is valid, will be created jwt-token and placed it in headers.
 </i></h4>
 
