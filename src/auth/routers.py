@@ -16,7 +16,7 @@ router = APIRouter(tags=["Auth"])
 
 
 @router.post("/token", response_model=Token)
-async def login(
+async def create_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: CommonAsyncScopedSession,
 ):
