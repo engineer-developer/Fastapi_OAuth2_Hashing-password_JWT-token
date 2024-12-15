@@ -1,11 +1,25 @@
-# Fastapi authentication
+# Fastapi authentication 
 
-## Authentication type: <i>"OAuth2 password BEARER with JWT-token"</i>
+| Property               |      Value       |
+|:-----------------------|:----------------:|
+| Authentication type    |      OAuth2      |
+| Credentials            | email & password |
+| Access-token type      |       JWT        | 
+| Access-token stored in |      HEADER      | 
 
 <h4><i>
 For authentication uses form, where user input username and password. <br>
 If input data is valid, will be created jwt-token and placed it in headers.
 </i></h4>
+
+---
+
+#### The project has implemented:
+* Super_user add to database users with different roles.
+* Users can pass authentication with email and password placed in form.
+* A JWT-token is generated during the authentication process and placed in headers.
+* Authenticated user can access endpoints via GET methods
+* Authenticated admins can access endpoints via GET, POST, PUT, DELETE methods
 
 ---
 
