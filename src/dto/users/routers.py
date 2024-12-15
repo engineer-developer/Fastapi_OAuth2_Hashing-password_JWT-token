@@ -4,22 +4,22 @@ from typing import Annotated, Optional, Sequence
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.templating import Jinja2Templates
 
-from src.auth.utils import (
+from auth.utils import (
     get_current_active_admin,
     get_current_active_user,
     get_current_user,
 )
-from src.dao.models import Password, User, Role
-from src.database.database import CommonAsyncSession
-from src.dto.passwords.utils import create_password_instance
-from src.dto.users.schemas import (
+from dao.models import Password, User, Role
+from database.database import CommonAsyncSession
+from dto.passwords.utils import create_password_instance
+from dto.users.schemas import (
     DeleteConfirmSchema,
     ErrorDetailSchema,
     UserCreateSchema,
     UserOutSchema,
     UserUpdateSchema,
 )
-from src.dto.users.utils import fetch_all_users, fetch_user_by_id, fetch_user_by_email
+from dto.users.utils import fetch_all_users, fetch_user_by_id, fetch_user_by_email
 
 
 router = APIRouter(

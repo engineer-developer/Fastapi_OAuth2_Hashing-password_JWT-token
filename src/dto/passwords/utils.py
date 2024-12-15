@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.utils import get_password_hash
-from src.dao.models import Password
-from src.dto.passwords.schemas import PasswordCreateSchema
+from auth.utils import get_password_hash
+from dao.models import Password
+from dto.passwords.schemas import PasswordCreateSchema
 
 
 async def create_password_instance(

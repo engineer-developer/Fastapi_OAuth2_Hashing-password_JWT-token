@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.schemas import oauth2_scheme
-from src.dao.models import User
-from src.database.database import CommonAsyncScopedSession
+from auth.schemas import oauth2_scheme
+from dao.models import User
+from database.database import CommonAsyncScopedSession
 
 
 async def fetch_all_users(session: AsyncSession) -> Sequence[User]:

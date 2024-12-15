@@ -6,9 +6,9 @@ from fastapi.responses import ORJSONResponse
 
 
 def create_app() -> FastAPI:
-    from src.api.v1 import router as api_v1_router
-    from src.auth.routers import router as auth_router
-    from src.database.utils import alembic_upgrade_head
+    from api.v1 import router as api_v1_router
+    from auth.routers import router as auth_router
+    from database.utils import alembic_upgrade_head
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:

@@ -4,10 +4,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.auth.utils import authenticate_user, create_access_token
-from src.config.config import settings
-from src.database.database import CommonAsyncScopedSession
-from src.dto.tokens.schemas import Token
+from auth.utils import authenticate_user, create_access_token
+from config.config import settings
+from database.database import CommonAsyncScopedSession
+from dto.tokens.schemas import Token
 
 router = APIRouter(tags=["Auth"])
 

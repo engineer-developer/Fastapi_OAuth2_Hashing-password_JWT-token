@@ -1,6 +1,6 @@
 import uvicorn
 
-from src.core.fastapi_factory import create_app
+from core.fastapi_factory import create_app
 
 app = create_app()
 

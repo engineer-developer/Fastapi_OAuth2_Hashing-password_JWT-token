@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from src.loggers.loggers import logger
+from loggers.loggers import logger
 
 
 def alembic_upgrade_head() -> bool:

@@ -7,12 +7,12 @@ from jwt.exceptions import InvalidTokenError
 from passlib.exc import UnknownHashError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.schemas import oauth2_scheme, pwd_context
-from src.config.config import settings
-from src.dao.models import Role, User
-from src.database.database import CommonAsyncScopedSession
-from src.dto.tokens.schemas import TokenData
-from src.dto.users.utils import fetch_user_by_email, fetch_user_by_username
+from auth.schemas import oauth2_scheme, pwd_context
+from config.config import settings
+from dao.models import Role, User
+from database.database import CommonAsyncScopedSession
+from dto.tokens.schemas import TokenData
+from dto.users.utils import fetch_user_by_email, fetch_user_by_username
 
 
 async def get_password_hash(password: str):
