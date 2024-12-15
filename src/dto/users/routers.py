@@ -33,15 +33,6 @@ user_not_found_exception = HTTPException(
 )
 
 
-@router.get("/login")
-async def authentication(request: Request):
-    """Authentication form"""
-
-    templates_dir = Path(__file__).parent.parent.parent / "templates"
-    templates = Jinja2Templates(directory=templates_dir)
-    return templates.TemplateResponse("auth.html", {"request": request})
-
-
 @router.get("/me", response_model=UserOutSchema)
 async def get_profile_of_logging_user(
     current_user: Annotated[User, Depends(get_current_user)],
